@@ -1,0 +1,16 @@
+domain: justk8s.com
+layout:
+- go.kubebuilder.io/v3
+projectName: daemonjob-operator
+repo: github.com/mcbenjemaa/daemonjob-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: justk8s.com
+  group: daemon
+  kind: DaemonJob
+  path: github.com/mcbenjemaa/daemonjob-operator/api/v1alpha1
+  version: v1alpha1
+version: "3"
