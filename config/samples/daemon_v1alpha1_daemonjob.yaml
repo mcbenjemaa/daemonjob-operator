@@ -9,10 +9,10 @@ spec:
         spec:
           containers:
             - name: hello
-              image: busybox
+              image: busybox:stable
               imagePullPolicy: IfNotPresent
               command:
                 - /bin/sh
                 - -c
-                - date; echo Hello from the Kubernetes cluster
+                - date; echo Hello from the Kubernetes cluster v2
           restartPolicy: OnFailure

@@ -17,14 +17,17 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.status.desiredNumberScheduled
-      name: Desired
+    - jsonPath: .status.desiredNumberScheduled
+      name: DESIRED
       type: integer
-    - jsonPath: .spec.status.numberAvailable
-      name: Available
+    - jsonPath: .status.numberAvailable
+      name: AVAILABLE
       type: integer
-    - jsonPath: .spec.status.numberReady
-      name: Ready
+    - jsonPath: .status.completedJobs
+      name: COMPLETED
+      type: integer
+    - jsonPath: .status.failedJobs
+      name: Failed
       type: integer
     name: v1alpha1
     schema:
@@ -7071,9 +7074,8 @@ spec:
           status:
             description: DaemonJobStatus defines the observed state of DaemonJob
             properties:
-              currentNumberScheduled:
-                description: The number of nodes that are running at least 1 daemon
-                  job and are supposed to run the daemon job.
+              completedJobs:
+                description: The number of jobs that are completed.
                 format: int32
                 type: integer
               desiredNumberScheduled:
@@ -7081,21 +7083,18 @@ spec:
                   daemon job (including nodes correctly running the daemon job).
                 format: int32
                 type: integer
-              numberAvailable:
-                description: The number of nodes that should be running the daemon
-                  pod and have one or more of the daemon pod running and available
-                  (ready for at least spec.minReadySeconds)
+              failedJobs:
+                description: The number of jobs that are failed
                 format: int32
                 type: integer
-              numberReady:
+              numberAvailable:
                 description: The number of nodes that should be running the daemon
-                  job and have one or more of the daemon job running and ready.
+                  job and have one or more of the pod running and available (ready
+                  for at least spec.minReadySeconds)
                 format: int32
                 type: integer
             required:
-            - currentNumberScheduled
             - desiredNumberScheduled
-            - numberReady
             type: object
         type: object
     served: true

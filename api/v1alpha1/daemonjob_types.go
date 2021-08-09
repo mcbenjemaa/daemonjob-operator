@@ -17,10 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	batchv1 "k8s.io/api/batch/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
 
 type JobTemplateSpec struct {
 	// Standard object's metadata of the jobs created from this template.
@@ -48,30 +47,31 @@ type DaemonJobSpec struct {
 // DaemonJobStatus defines the observed state of DaemonJob
 type DaemonJobStatus struct {
 
-	// The number of nodes that are running at least 1
-	// daemon job and are supposed to run the daemon job.
-	CurrentNumberScheduled int32 `json:"currentNumberScheduled"`
-
 	// The total number of nodes that should be running the daemon
 	// job (including nodes correctly running the daemon job).
 	DesiredNumberScheduled int32 `json:"desiredNumberScheduled"`
 
 	// The number of nodes that should be running the
-	// daemon pod and have one or more of the daemon pod running and
+	// daemon job and have one or more of the pod running and
 	// available (ready for at least spec.minReadySeconds)
 	// +optional
-	NumberAvailable int32 `json:"numberAvailable,omitempty"`
+	NumberAvailable *int32 `json:"numberAvailable"`
 
-    // The number of nodes that should be running the daemon job and have one
-	// or more of the daemon job running and ready.
-	NumberReady int32 `json:"numberReady"`
+	// The number of jobs that are completed.
+	// +optional
+	CompletedJobs *int32 `json:"completedJobs,omitempty"`
+
+	// The number of jobs that are failed
+	// +optional
+	FailedJobs *int32 `json:"failedJobs,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:JSONPath=".spec.status.desiredNumberScheduled",name="Desired",type="integer"
-//+kubebuilder:printcolumn:JSONPath=".spec.status.numberAvailable",name="Available",type="integer"
-//+kubebuilder:printcolumn:JSONPath=".spec.status.numberReady",name="Ready",type="integer"
+//+kubebuilder:printcolumn:JSONPath=".status.desiredNumberScheduled",name="DESIRED",type="integer"
+//+kubebuilder:printcolumn:JSONPath=".status.numberAvailable",name="AVAILABLE",type="integer"
+//+kubebuilder:printcolumn:JSONPath=".status.completedJobs",name="COMPLETED",type="integer"
+//+kubebuilder:printcolumn:JSONPath=".status.failedJobs",name="Failed",type="integer"
 
 // DaemonJob is the Schema for the daemonjobs API
 type DaemonJob struct {
