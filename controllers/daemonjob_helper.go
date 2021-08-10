@@ -12,9 +12,6 @@ func NewPod(dj *daemonv1alpha1.DaemonJob, nodeName string) *v1.Pod {
 	newPod.Namespace = dj.Namespace
 	newPod.Spec.NodeName = nodeName
 
-	// Added default tolerations for DaemonSet pods.
-	//daemonutil.AddOrUpdateDaemonPodTolerations(&newPod.Spec)
-
 	return newPod
 }
 
