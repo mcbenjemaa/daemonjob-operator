@@ -153,8 +153,10 @@ func (dr *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, chi
 			numberAvailable++
 		case batchv1.JobFailed:
 			failedJobs++
+			numberAvailable++
 		case batchv1.JobComplete:
 			completedJobs++
+			numberAvailable++
 		}
 	}
 
@@ -257,11 +259,11 @@ func (r *DaemonJobReconciler) mapToDaemonJob(_ client.Object) []ctrl.Request {
 	}
 
 	var results []ctrl.Request
-	for _, daemonJobSet := range daemonJobList.Items {
+	for _, daemonJob := range daemonJobList.Items {
 		results = append(results, ctrl.Request{
 			NamespacedName: client.ObjectKey{
-				Namespace: daemonJobSet.GetNamespace(),
-				Name:      daemonJobSet.GetName(),
+				Namespace: daemonJob.GetNamespace(),
+				Name:      daemonJob.GetName(),
 			},
 		})
 	}

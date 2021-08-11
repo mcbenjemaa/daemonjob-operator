@@ -200,7 +200,7 @@ var _ = Describe("DaemonJob controller", func() {
 			}
 			Expect(k8sClient.Create(ctx, testNode)).NotTo(HaveOccurred())
 
-			By("checking that CronJob has been created")
+			By("checking that Job has been created")
 			nodeCreatedJob := &batchv1.Job{}
 			Eventually(func() error {
 				err := k8sClient.Get(ctx, jobLookupKey, nodeCreatedJob)
@@ -211,6 +211,7 @@ var _ = Describe("DaemonJob controller", func() {
 			}, timeout, interval).ShouldNot(HaveOccurred())
 			Expect(nodeCreatedJob.Spec.Template).ToNot(BeNil())
 			Expect(nodeCreatedJob.Spec.Template.Spec.NodeSelector["kubernetes.io/hostname"]).To(Equal(NodeName))
+			Expect(nodeCreatedJob.ObjectMeta.Annotations[annotation]).To(Equal(NodeName))
 		})
 
 	})
