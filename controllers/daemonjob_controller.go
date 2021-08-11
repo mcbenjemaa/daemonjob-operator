@@ -67,14 +67,14 @@ func (r *DaemonJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	log.Info("reconciling DaemonJob")
 
-	// Retreive DaemonJob object
+	// Retrieve DaemonJob object
 	var daemonJob daemonv1alpha1.DaemonJob
 	if err := r.Get(ctx, req.NamespacedName, &daemonJob); err != nil {
 		log.Error(err, "unable to fetch DaemonJob")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Retreive childJobs
+	// Retrieve childJobs
 	var childJobs batchv1.JobList
 	if err := r.List(ctx, &childJobs,
 		client.InNamespace(req.Namespace),
@@ -110,7 +110,6 @@ func (r *DaemonJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		log.Error(err, "error creating desired jobs")
 		return ctrl.Result{}, err
 	}
-	// your logic here
 
 	return ctrl.Result{}, nil
 }
@@ -126,7 +125,7 @@ func (r *DaemonJobReconciler) listNodes(ctx context.Context) (*v1.NodeList, erro
 	return &nodeList, nil
 }
 
-//nolint:gosec
+//nolint
 func (r *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, childJobs *batchv1.JobList, nodeList *v1.NodeList) *daemonv1alpha1.DaemonJobStatus {
 	var desiredNumberScheduled, numberAvailable, completedJobs, failedJobs int32
 
