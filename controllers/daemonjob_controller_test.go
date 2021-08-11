@@ -27,7 +27,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	_ "sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	daemonv1alpha1 "github.com/mcbenjemaa/daemonjob-operator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
@@ -50,8 +50,8 @@ var _ = Describe("DaemonJob controller", func() {
 
 		daemonJobLookupKey := types.NamespacedName{Name: DaemonJobName, Namespace: Namespace}
 		createdDaemonJob := &daemonv1alpha1.DaemonJob{}
-		//jobLookupKey := types.NamespacedName{Name: JobName, Namespace: Namespace}
-		//createdJob := &batchv1.Job{}
+		jobLookupKey := types.NamespacedName{Name: JobName, Namespace: Namespace}
+		createdJob := &batchv1.Job{}
 		gvk := daemonv1alpha1.GroupVersion.WithKind(kind)
 
 		It("should increase DaemonJob Status.NumberAvailable when new Jobs are created", func() {
@@ -135,6 +135,83 @@ var _ = Describe("DaemonJob controller", func() {
 			testJob.SetOwnerReferences([]metav1.OwnerReference{*controllerRef})
 			Expect(k8sClient.Create(ctx, testJob)).Should(Succeed())
 
+			By("checking that Job is created")
+			Eventually(func() error {
+				err := k8sClient.Get(ctx, jobLookupKey, createdJob)
+				if err != nil {
+					return err
+				}
+				return nil
+			}, timeout, interval).ShouldNot(HaveOccurred())
+			Expect(createdJob.Spec.Template).ToNot(BeNil())
+
+			By("checking that the DaemonJob has one child Job")
+			Eventually(func() (int32, error) {
+				err := k8sClient.Get(ctx, daemonJobLookupKey, createdDaemonJob)
+				if err != nil {
+					return -1, err
+				}
+				return *createdDaemonJob.Status.NumberAvailable, nil
+			}, timeout, interval).Should(BeEquivalentTo(1))
+
 		})
+
+		It("should update DaemonJob Status.NumberAvailable when a Jobs are deleted", func() {
+
+			By("removing Job")
+			Expect(k8sClient.Delete(ctx, createdJob)).ToNot(HaveOccurred())
+
+			By("patching Job with nil finalizers")
+			patch := []byte(`[ { "op": "remove", "path": "/metadata/finalizers" } ]`)
+			Expect(k8sClient.Patch(ctx, createdJob, client.RawPatch(types.JSONPatchType, patch))).NotTo(HaveOccurred())
+
+			By("check the Job does not exists anymore")
+			Consistently(func() error {
+				err := k8sClient.Get(ctx, jobLookupKey, createdJob)
+				if err != nil {
+					return err
+				}
+				return nil
+			}, duration, interval).Should(HaveOccurred())
+
+			By("checking the DaemonJob has zero child Jobs")
+			Eventually(func() (int, error) {
+				emptyDaemonJobSet := &daemonv1alpha1.DaemonJob{}
+				err := k8sClient.Get(ctx, daemonJobLookupKey, emptyDaemonJobSet)
+				if err != nil {
+					return -1, err
+				}
+				return int(*emptyDaemonJobSet.Status.NumberAvailable), nil
+			}, timeout, interval).Should(BeZero())
+
+		})
+
+		It("should create Job when new node is added", func() {
+			By("creating a new Node")
+			testNode := &v1.Node{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: NodeName,
+					Labels: map[string]string{
+						"beta.kubernetes.io/os":  "linux",
+						"kubernetes.io/hostname": NodeName,
+					},
+				},
+				Spec: v1.NodeSpec{},
+			}
+			Expect(k8sClient.Create(ctx, testNode)).NotTo(HaveOccurred())
+
+			By("checking that CronJob has been created")
+			nodeCreatedJob := &batchv1.Job{}
+			Eventually(func() error {
+				err := k8sClient.Get(ctx, jobLookupKey, nodeCreatedJob)
+				if err != nil {
+					return err
+				}
+				return nil
+			}, timeout, interval).ShouldNot(HaveOccurred())
+			Expect(nodeCreatedJob.Spec.Template).ToNot(BeNil())
+			Expect(nodeCreatedJob.Spec.Template.Spec.NodeSelector["kubernetes.io/hostname"]).To(Equal(NodeName))
+		})
+
 	})
 })
