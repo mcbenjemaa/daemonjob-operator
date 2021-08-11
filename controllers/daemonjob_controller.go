@@ -99,10 +99,6 @@ func (r *DaemonJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		//if err := r.Status().Update(ctx, &daemonJob); err != nil {
-		//	log.Error(err, "unable to update DaemonJob status")
-		//	return ctrl.Result{}, err
-		//}
 	}
 
 	// desiredJobs
@@ -134,12 +130,12 @@ func (r *DaemonJobReconciler) listNodes(ctx context.Context) (*v1.NodeList, erro
 	return &nodeList, nil
 }
 
-func (dr *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, childJobs *batchv1.JobList, nodeList *v1.NodeList) (*daemonv1alpha1.DaemonJobStatus, error) {
+func (r *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, childJobs *batchv1.JobList, nodeList *v1.NodeList) (*daemonv1alpha1.DaemonJobStatus, error) {
 	var desiredNumberScheduled, numberAvailable, completedJobs, failedJobs int32
 
-	//desiredNumberScheduled = len(nodeList.Items)
+	// desiredNumberScheduled = len(nodeList.Items)
 	for _, node := range nodeList.Items {
-		shouldRun, _ := dr.nodeShouldRunDaemonJob(&node, dj)
+		shouldRun, _ := r.nodeShouldRunDaemonJob(&node, dj)
 
 		if shouldRun {
 			desiredNumberScheduled++
@@ -179,8 +175,8 @@ func (dr *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, chi
 // * shouldContinueRunning:
 //     Returns true when a daemonset should continue running on a node if a daemonset pod is already
 //     running on that node.
-func (dsc *DaemonJobReconciler) nodeShouldRunDaemonJob(node *v1.Node, dj *daemonv1alpha1.DaemonJob) (bool, bool) {
-	//pod := daemonctrl.NewPod(dj, node.Name)
+func (r *DaemonJobReconciler) nodeShouldRunDaemonJob(node *v1.Node, dj *daemonv1alpha1.DaemonJob) (bool, bool) {
+	// pod := daemonctrl.NewPod(dj, node.Name)
 
 	// If the daemon job specifies a node name, check that it matches with node.Name.
 	if !(dj.Spec.JobTemplate.Spec.Template.Spec.NodeName == "" || dj.Spec.JobTemplate.Spec.Template.Spec.NodeName == node.Name) {
