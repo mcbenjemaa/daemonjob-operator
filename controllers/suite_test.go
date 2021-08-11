@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-//nolint
+
 package controllers
 
 import (
@@ -38,6 +38,7 @@ import (
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
+//nolint:deadcode
 var cfg *rest.Config
 var k8sClient client.Client
 var testEnv *envtest.Environment

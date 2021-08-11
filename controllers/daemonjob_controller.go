@@ -91,7 +91,7 @@ func (r *DaemonJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	// update status
-	status, err := r.daemonJobStatus(&daemonJob, &childJobs, nodeList)
+	status := r.daemonJobStatus(&daemonJob, &childJobs, nodeList)
 	if !reflect.DeepEqual(status, daemonJob.Status) {
 		log.Info("Updating daemon job status")
 		daemonJob.Status = *status.DeepCopy()
@@ -102,11 +102,7 @@ func (r *DaemonJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	// desiredJobs
-	desiredJobs, err := r.desiredJobsForDaemonJob(req.Namespace, &daemonJob, nodeList)
-	if err != nil {
-		log.Error(err, "unable to construct required Jobs")
-		return ctrl.Result{}, err
-	}
+	desiredJobs := r.desiredJobsForDaemonJob(req.Namespace, &daemonJob, nodeList)
 
 	// create desired Jobs
 	err = r.createDesiredJobsForDaemonJob(ctx, &daemonJob, desiredJobs)
@@ -130,7 +126,8 @@ func (r *DaemonJobReconciler) listNodes(ctx context.Context) (*v1.NodeList, erro
 	return &nodeList, nil
 }
 
-func (r *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, childJobs *batchv1.JobList, nodeList *v1.NodeList) (*daemonv1alpha1.DaemonJobStatus, error) {
+//nolint:gosec
+func (r *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, childJobs *batchv1.JobList, nodeList *v1.NodeList) *daemonv1alpha1.DaemonJobStatus {
 	var desiredNumberScheduled, numberAvailable, completedJobs, failedJobs int32
 
 	// desiredNumberScheduled = len(nodeList.Items)
@@ -163,7 +160,7 @@ func (r *DaemonJobReconciler) daemonJobStatus(dj *daemonv1alpha1.DaemonJob, chil
 		CompletedJobs:          &completedJobs,
 	}
 
-	return status, nil
+	return status
 }
 
 // nodeShouldRunDaemonJob checks a set of preconditions against a (node,daemonjob) and returns a
@@ -187,10 +184,10 @@ func (r *DaemonJobReconciler) nodeShouldRunDaemonJob(node *v1.Node, dj *daemonv1
 }
 
 // Create required Jobs that should be running
-func (r *DaemonJobReconciler) desiredJobsForDaemonJob(namespace string, daemonJob *daemonv1alpha1.DaemonJob, nodeList *v1.NodeList) ([]*batchv1.Job, error) {
+func (r *DaemonJobReconciler) desiredJobsForDaemonJob(namespace string, daemonJob *daemonv1alpha1.DaemonJob, nodeList *v1.NodeList) []*batchv1.Job {
 	jobTemplate := &daemonJob.Spec.JobTemplate
 
-	var jobs []*batchv1.Job
+	jobs := make([]*batchv1.Job, 0, len(nodeList.Items))
 
 	for _, node := range nodeList.Items {
 		jobName := fmt.Sprintf("%s-%s", daemonJob.Name, node.Name)
@@ -220,7 +217,7 @@ func (r *DaemonJobReconciler) desiredJobsForDaemonJob(namespace string, daemonJo
 
 		jobs = append(jobs, job)
 	}
-	return jobs, nil
+	return jobs
 }
 
 // Create Desired Jobs
@@ -254,7 +251,7 @@ func (r *DaemonJobReconciler) mapToDaemonJob(_ client.Object) []ctrl.Request {
 		return nil
 	}
 
-	var results []ctrl.Request
+	results := make([]ctrl.Request, 0, len(daemonJobList.Items))
 	for _, daemonJob := range daemonJobList.Items {
 		results = append(results, ctrl.Request{
 			NamespacedName: client.ObjectKey{

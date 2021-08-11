@@ -90,10 +90,7 @@ var _ = Describe("DaemonJob controller", func() {
 			By("check DaemonJob has been created")
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, daemonJobLookupKey, createdDaemonJob)
-				if err != nil {
-					return false
-				}
-				return true
+				return err == nil
 			}, timeout, interval).Should(BeTrue())
 			Expect(createdDaemonJob.Spec.JobTemplate).ToNot(BeNil()) // TODO: check with another spec field
 
