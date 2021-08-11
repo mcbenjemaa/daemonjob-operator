@@ -1,2 +1,3 @@
 # daemonjob-operator
-K8s operator runs Jobs on every nodes
+Daemonjob-operator runs K8s Jobs on every nodes.
+

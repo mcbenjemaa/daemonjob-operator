@@ -1,0 +1,18 @@
+apiVersion: daemon.justk8s.com/v1alpha1
+kind: DaemonJob
+metadata:
+  name: daemonjob-sample
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: hello
+              image: busybox:stable
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - date; echo Hello from the Kubernetes cluster v2
+          restartPolicy: OnFailure
