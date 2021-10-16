@@ -1,9 +1,8 @@
-# 
+#
 # nameOverride: ""
 # fullnameOverride: ""
 
 commonLabels: {}
-
 
 controller:
   image:
@@ -24,8 +23,6 @@ controller:
           leaderElect: true
           resourceName: 1153ea16.justk8s.com
 
-
-
-serviceAccount: 
+serviceAccount:
   create: true
   name: ""
