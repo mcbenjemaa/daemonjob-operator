@@ -11,6 +11,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
+CRD_DAEMONJOB = daemon.justk8s.com_daemonjobs.yaml
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
@@ -42,6 +43,11 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+
+helm: manifests generate kustomize ## Copy manifests crd/rbac to helm chart.
+	$(KUSTOMIZE) build config/crd | cp /dev/stdin ./helm/charts/daemonjob-operator/crds/$(CRD_DAEMONJOB)
+	cp -r ./config/rbac/* helm/charts/daemonjob-operator/templates/rbac
+	rm ./helm/charts/daemonjob-operator/templates/rbac/kustomization.yaml
 
 fmt: ## Run go fmt against code.
 	go fmt ./...

@@ -1,0 +1,7 @@
+apiVersion: v1
+data: {{ .Values.controller.config | toYaml | nindent 2 }}
+kind: ConfigMap
+metadata:
+  name: {{ include "daemonjob-operator.name" . }}-manager-config
+  namespace: {{ .Release.Namespace }}
+  labels: {{ include "daemonjob-operator.labels" .  | nindent 4 }}
