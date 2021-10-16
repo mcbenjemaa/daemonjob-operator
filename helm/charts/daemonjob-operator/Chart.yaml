@@ -1,14 +1,14 @@
 apiVersion: v2
-appVersion: 0.1.0
 description: Daemonjob-operator runs K8s Jobs on every nodes.
 name: daemonjob-operator
+type: application
 version: 0.1.0
+appVersion: 0.1.0
 maintainers:
   - name: Mohamed Chiheb Ben jemaa
     email: mc.benjemaa@gmil.com
-source:
+sources:
 - https://github.com/mcbenjemaa/daemonjob-operator
 keywords:
 - deamonjob
 - kubernetes
-
