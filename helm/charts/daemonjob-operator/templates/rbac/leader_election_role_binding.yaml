@@ -1,12 +1,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: leader-election-rolebinding
+  name: {{ include "daemonjob-operator.name" . }}-leader-election-rolebinding
+  namespace: {{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: leader-election-role
+  name: {{ include "daemonjob-operator.name" . }}-leader-election-role
 subjects:
 - kind: ServiceAccount
-  name: controller-manager
-  namespace: system
+  name: {{ include "daemonjob-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
