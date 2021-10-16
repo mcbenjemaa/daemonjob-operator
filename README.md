@@ -31,7 +31,7 @@ kubectl apply -f config/samples/daemonjob.yaml
 ```
 
 
-######  check out [Design](DESIGN.mq)
+######  check out [Design](DESIGN.md)
 
 
 
