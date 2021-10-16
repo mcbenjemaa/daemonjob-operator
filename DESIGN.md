@@ -122,3 +122,9 @@ spec:
   jobTemplate:
     ...
 ```  
+
+
+
+###### DaemonCronJob 
+
+TBD
