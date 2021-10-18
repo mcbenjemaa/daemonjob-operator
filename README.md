@@ -4,7 +4,7 @@
 
 Daemonjob-operator runs K8s Jobs on every nodes.
 
-DaemonJob is the concept to run ephemeral K8s jobs on every node. (I'm using it personally, to push metrics to pushgateway)
+DaemonJob is the concept to run ephemeral K8s jobs on every node. (I'm using it personally, to patch node config after bootstraping a cluster)
 
 ### Getting started
 
