@@ -44,6 +44,27 @@ kubectl apply -f config/samples/daemonjob.yaml
 * Helm3
 
 
+#### Using Tilt
+
+If you don't have tilt, go get it [here](https://tilt.dev)
+
+To start everthing, just 
+
+```
+tilt up
+```
+
+tilt now will deploy crd/conroller/sample and ensure fast feedback loop.
+When you change something, it will be detected by tilt and deployed.
+
+
+to clean up 
+
+```
+tilt down
+```
+
+#### Manual 
 
 ###### Deploy the crd
 

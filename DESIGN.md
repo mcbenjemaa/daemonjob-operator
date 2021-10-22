@@ -55,10 +55,10 @@ spec:
 
 ###### DaemonJob mutable job
 
-When you create a `DaemonJob` it will spinup jobs on every nodes, but if you change somerthing in the template and apply it again,
+When you create a `DaemonJob` it will spinup jobs on every nodes, but if you change something in the template and apply it again,
 the reconciler realize that the job is already created!
 
-If the developer wants to force this mechanism, he could do so by specifying `spec.replace: true` (by default is false)
+If the developer wants to force this mechanism, he could do so by specifying `spec.replace: true` (by default it's false)
 
 the reconciler, then attempt to delete all jobs and create new ones, form provided `jobTemplate`.
 
